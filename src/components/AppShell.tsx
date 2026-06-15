@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Heart, Users, Sparkles, History } from "lucide-react";
+import { Heart, Users, Sparkles, History, Trash2 } from "lucide-react";
 import { useFriends } from "@/context/FriendsContext";
 
 const NAV = [
@@ -75,6 +75,28 @@ function NavLinks({ orientation }: { orientation: "sidebar" | "bottom" }) {
   );
 }
 
+function ResetButton() {
+  const { friends, matches, clearAll } = useFriends();
+  const isEmpty = friends.length === 0 && matches.length === 0;
+  if (isEmpty) return null;
+  return (
+    <button
+      onClick={() => {
+        if (
+          window.confirm(
+            "Reset CupidList? This clears all friends and match history from this browser."
+          )
+        ) {
+          clearAll();
+        }
+      }}
+      className="inline-flex items-center gap-1.5 text-[11px] font-medium text-slate-400 transition-colors hover:text-red-500"
+    >
+      <Trash2 size={12} /> Reset all data
+    </button>
+  );
+}
+
 function Brand() {
   return (
     <div className="flex items-center gap-2.5 px-3">
@@ -99,7 +121,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <nav className="flex flex-col gap-1">
             <NavLinks orientation="sidebar" />
           </nav>
-          <div className="mt-auto px-3">
+          <div className="mt-auto flex flex-col gap-2 px-3">
+            <ResetButton />
             <p className="text-[11px] leading-relaxed text-slate-400">
               MVP · data is saved locally in your browser.
             </p>

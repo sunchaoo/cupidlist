@@ -1,11 +1,13 @@
 "use client";
 
-import { Heart, HeartOff, Trash2, Sparkles } from "lucide-react";
-import type { Friend } from "@/lib/types";
+import { useState } from "react";
+import { Heart, HeartOff, Pencil, Trash2, Sparkles } from "lucide-react";
+import type { Friend, NewFriendInput } from "@/lib/types";
 import { formatHandle } from "@/lib/match";
 import { useFriends } from "@/context/FriendsContext";
 import { Avatar } from "./Avatar";
 import { PlatformIcon } from "./PlatformIcon";
+import { AddFriendModal } from "./AddFriendModal";
 
 export function FriendCard({
   friend,
@@ -14,8 +16,19 @@ export function FriendCard({
   friend: Friend;
   onMatchmake?: (friend: Friend) => void;
 }) {
-  const { toggleSingle, removeFriend } = useFriends();
+  const { toggleSingle, removeFriend, updateFriend } = useFriends();
+  const [editOpen, setEditOpen] = useState(false);
   const handle = formatHandle(friend.instagramHandle);
+
+  // Strip generated fields so the edit form sees only its inputs.
+  const editInitial: NewFriendInput = {
+    name: friend.name,
+    source: friend.source,
+    instagramHandle: friend.instagramHandle ?? "",
+    isSingle: friend.isSingle,
+    gender: friend.gender,
+    preference: friend.preference,
+  };
 
   return (
     <div className="group flex flex-col gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-soft">
@@ -69,6 +82,14 @@ export function FriendCard({
           </span>
         </button>
         <button
+          onClick={() => setEditOpen(true)}
+          className="inline-flex items-center justify-center rounded-xl border border-slate-200 p-2 text-slate-400 transition-colors hover:border-cupid-200 hover:bg-cupid-50 hover:text-cupid-500"
+          title="Edit friend"
+          aria-label={`Edit ${friend.name}`}
+        >
+          <Pencil size={15} />
+        </button>
+        <button
           onClick={() => removeFriend(friend.id)}
           className="inline-flex items-center justify-center rounded-xl border border-slate-200 p-2 text-slate-400 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-500"
           title="Remove friend"
@@ -77,6 +98,15 @@ export function FriendCard({
           <Trash2 size={15} />
         </button>
       </div>
+
+      <AddFriendModal
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        onSubmit={(patch) => updateFriend(friend.id, patch)}
+        initial={editInitial}
+        title={`Edit ${friend.name}`}
+        submitLabel="Save changes"
+      />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type {
   Gender,
   NewFriendInput,
@@ -47,12 +47,25 @@ export function AddFriendModal({
   open,
   onClose,
   onSubmit,
+  initial = null,
+  title = "Add a friend",
+  submitLabel = "Add friend",
 }: {
   open: boolean;
   onClose: () => void;
   onSubmit: (friend: NewFriendInput) => void;
+  /** When provided, the form opens pre-filled for editing. */
+  initial?: NewFriendInput | null;
+  title?: string;
+  submitLabel?: string;
 }) {
-  const [form, setForm] = useState<NewFriendInput>(EMPTY);
+  const [form, setForm] = useState<NewFriendInput>(initial ?? EMPTY);
+
+  // Re-seed the form whenever the modal opens (so edit shows current values
+  // and add starts blank).
+  useEffect(() => {
+    if (open) setForm(initial ?? EMPTY);
+  }, [open, initial]);
 
   function update<K extends keyof NewFriendInput>(
     key: K,
@@ -74,7 +87,7 @@ export function AddFriendModal({
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Add a friend">
+    <Modal open={open} onClose={onClose} title={title}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
           <label className={labelClass} htmlFor="name">
@@ -190,7 +203,7 @@ export function AddFriendModal({
           type="submit"
           className="mt-1 w-full rounded-xl bg-gradient-to-r from-cupid-500 to-indigoSoft-500 px-4 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
         >
-          Add friend
+          {submitLabel}
         </button>
       </form>
     </Modal>
