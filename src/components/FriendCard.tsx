@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Heart, HeartOff, Pencil, Trash2, Sparkles } from "lucide-react";
+import { Heart, HeartOff, Linkedin, Pencil, Trash2, Sparkles } from "lucide-react";
 import type { Friend, NewFriendInput } from "@/lib/types";
 import { formatHandle } from "@/lib/match";
 import { useFriends } from "@/context/FriendsContext";
@@ -50,8 +50,20 @@ export function FriendCard({
             >
               {handle}
             </a>
+          ) : friend.linkedinUrl ? (
+            <a
+              href={friend.linkedinUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 text-sm text-sky-700 hover:underline"
+            >
+              <Linkedin size={12} /> LinkedIn
+            </a>
           ) : (
             <span className="text-sm text-slate-400">No handle</span>
+          )}
+          {friend.headline && (
+            <p className="truncate text-xs text-slate-400">{friend.headline}</p>
           )}
         </div>
 

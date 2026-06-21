@@ -26,6 +26,8 @@ interface FriendsContextValue {
   removeFriend: (id: string) => void;
   toggleSingle: (id: string) => void;
   importMockFriends: () => number;
+  /** Bulk-add friends, skipping anyone whose name already exists. Returns count added. */
+  importFriends: (inputs: NewFriendInput[]) => number;
   recordMatch: (match: Omit<Match, "id" | "createdAt">) => void;
   clearAll: () => void;
 }
@@ -107,17 +109,30 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
     [friends, persistFriends]
   );
 
-  const importMockFriends = useCallback(() => {
-    // Skip anyone already imported (match on name) to avoid duplicates.
-    const existingNames = new Set(friends.map((f) => f.name.toLowerCase()));
-    const toAdd = MOCK_IMPORT_FRIENDS.filter(
-      (m) => !existingNames.has(m.name.toLowerCase())
-    ).map(withGeneratedFields);
-    if (toAdd.length) {
-      persistFriends([...toAdd, ...friends]);
-    }
-    return toAdd.length;
-  }, [friends, persistFriends]);
+  const importFriends = useCallback(
+    (inputs: NewFriendInput[]) => {
+      // Skip anyone already present (match on name) to avoid duplicates.
+      const existingNames = new Set(friends.map((f) => f.name.toLowerCase()));
+      const toAdd = inputs
+        .filter((m) => {
+          const key = m.name.toLowerCase();
+          if (!m.name.trim() || existingNames.has(key)) return false;
+          existingNames.add(key); // also dedupe within the batch
+          return true;
+        })
+        .map(withGeneratedFields);
+      if (toAdd.length) {
+        persistFriends([...toAdd, ...friends]);
+      }
+      return toAdd.length;
+    },
+    [friends, persistFriends]
+  );
+
+  const importMockFriends = useCallback(
+    () => importFriends(MOCK_IMPORT_FRIENDS),
+    [importFriends]
+  );
 
   const recordMatch = useCallback(
     (match: Omit<Match, "id" | "createdAt">) => {
@@ -148,6 +163,7 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
       removeFriend,
       toggleSingle,
       importMockFriends,
+      importFriends,
       recordMatch,
       clearAll,
     }),
@@ -161,6 +177,7 @@ export function FriendsProvider({ children }: { children: React.ReactNode }) {
       removeFriend,
       toggleSingle,
       importMockFriends,
+      importFriends,
       recordMatch,
       clearAll,
     ]

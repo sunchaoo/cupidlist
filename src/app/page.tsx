@@ -1,18 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Plus, Search, Users } from "lucide-react";
+import { Linkedin, Plus, Search, Users } from "lucide-react";
 import { useFriends } from "@/context/FriendsContext";
 import type { Friend } from "@/lib/types";
 import { PageHeader } from "@/components/PageHeader";
 import { FriendCard } from "@/components/FriendCard";
 import { AddFriendModal } from "@/components/AddFriendModal";
 import { MatchmakeModal } from "@/components/MatchmakeModal";
+import { ImportConnectionsModal } from "@/components/ImportConnectionsModal";
 import { EmptyState } from "@/components/EmptyState";
 
 export default function AllFriendsPage() {
-  const { friends, loading, addFriend, importMockFriends } = useFriends();
+  const { friends, loading, addFriend } = useFriends();
   const [addOpen, setAddOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [matchTarget, setMatchTarget] = useState<Friend | null>(null);
   const [query, setQuery] = useState("");
   const [importNote, setImportNote] = useState<string | null>(null);
@@ -23,14 +25,13 @@ export default function AllFriendsPage() {
       (f.instagramHandle ?? "").toLowerCase().includes(query.toLowerCase())
   );
 
-  function handleImport() {
-    const added = importMockFriends();
+  function handleImported(added: number) {
     setImportNote(
       added > 0
-        ? `Imported ${added} friend${added === 1 ? "" : "s"} 🎉`
-        : "Your sample friends are already imported."
+        ? `Imported ${added} connection${added === 1 ? "" : "s"} 🎉`
+        : "Those connections are already in your list."
     );
-    setTimeout(() => setImportNote(null), 2500);
+    setTimeout(() => setImportNote(null), 3000);
   }
 
   return (
@@ -41,10 +42,10 @@ export default function AllFriendsPage() {
         actions={
           <>
             <button
-              onClick={handleImport}
+              onClick={() => setImportOpen(true)}
               className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
             >
-              <Download size={16} /> Import sample
+              <Linkedin size={16} className="text-sky-700" /> Import contacts
             </button>
             <button
               onClick={() => setAddOpen(true)}
@@ -80,14 +81,14 @@ export default function AllFriendsPage() {
         <EmptyState
           icon={<Users size={26} />}
           title="No friends yet"
-          description="Add your first friend manually, or import a sample crew to see how matchmaking works."
+          description="Import your LinkedIn connections, or add a friend manually to get started."
           action={
             <div className="flex gap-2">
               <button
-                onClick={handleImport}
+                onClick={() => setImportOpen(true)}
                 className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
               >
-                <Download size={16} /> Import sample
+                <Linkedin size={16} className="text-sky-700" /> Import contacts
               </button>
               <button
                 onClick={() => setAddOpen(true)}
@@ -99,9 +100,7 @@ export default function AllFriendsPage() {
           }
         />
       ) : filtered.length === 0 ? (
-        <p className="text-sm text-slate-400">
-          No friends match “{query}”.
-        </p>
+        <p className="text-sm text-slate-400">No friends match “{query}”.</p>
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((f) => (
@@ -114,6 +113,11 @@ export default function AllFriendsPage() {
         open={addOpen}
         onClose={() => setAddOpen(false)}
         onSubmit={addFriend}
+      />
+      <ImportConnectionsModal
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        onImported={handleImported}
       />
       <MatchmakeModal
         friendA={matchTarget}

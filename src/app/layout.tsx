@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { FriendsProvider } from "@/context/FriendsContext";
+import { Providers } from "./providers";
 import { AppShell } from "@/components/AppShell";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -26,9 +26,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="font-sans text-slate-800 antialiased">
-        <FriendsProvider>
+        <Providers>
           <AppShell>{children}</AppShell>
-        </FriendsProvider>
+        </Providers>
       </body>
     </html>
   );
