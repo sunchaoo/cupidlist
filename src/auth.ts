@@ -27,6 +27,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       ]
     : [],
   session: { strategy: "jwt" },
+  callbacks: {
+    // Persist the provider's stable subject id on the token...
+    async jwt({ token, profile }) {
+      if (profile?.sub) token.sub = profile.sub;
+      return token;
+    },
+    // ...and expose it on the session so server code can scope data per user.
+    async session({ session, token }) {
+      if (session.user && token.sub) {
+        (session.user as { id?: string }).id = token.sub;
+      }
+      return session;
+    },
+  },
   // Trust the deployment host (Vercel preview/prod). Fallback secret keeps the
   // guest/demo deploy from 500-ing before real credentials are configured —
   // it signs nothing sensitive since no providers are active without real env.

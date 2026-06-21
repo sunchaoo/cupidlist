@@ -8,8 +8,9 @@ import {
   useMemo,
   useState,
 } from "react";
+import { useSession } from "next-auth/react";
 import type { Friend, Match, NewFriendInput } from "@/lib/types";
-import { getStore } from "@/lib/storage";
+import { cloudSyncEnabled, getStore } from "@/lib/storage";
 import {
   MOCK_IMPORT_FRIENDS,
   createId,
@@ -35,28 +36,70 @@ interface FriendsContextValue {
 const FriendsContext = createContext<FriendsContextValue | null>(null);
 
 export function FriendsProvider({ children }: { children: React.ReactNode }) {
-  const store = getStore();
+  const { status } = useSession();
+  const authenticated = status === "authenticated";
+
+  // Per-user cloud store when signed in (and cloud sync is on); Local Storage
+  // otherwise. Switching auth state swaps the store and re-hydrates below.
+  const store = useMemo(() => getStore(authenticated), [authenticated]);
+
   const [friends, setFriends] = useState<Friend[]>([]);
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Hydrate from the data store on mount.
+  // Hydrate whenever the active store changes (mount, sign-in, sign-out).
   useEffect(() => {
+    // Don't load until the session is resolved, so we pick the right store.
+    if (status === "loading") return;
     let active = true;
     (async () => {
-      const [f, m] = await Promise.all([
-        store.getFriends(),
-        store.getMatches(),
-      ]);
-      if (!active) return;
-      setFriends(f);
-      setMatches(m);
-      setLoading(false);
+      setLoading(true);
+      try {
+        const [f, m] = await Promise.all([
+          store.getFriends(),
+          store.getMatches(),
+        ]);
+        if (!active) return;
+
+        // First sign-in seeding: if the cloud is empty but the user already
+        // built a list as a guest, push that local data up so nothing is lost.
+        if (
+          authenticated &&
+          cloudSyncEnabled() &&
+          f.length === 0 &&
+          m.length === 0
+        ) {
+          const local = getStore(false);
+          const [lf, lm] = await Promise.all([
+            local.getFriends(),
+            local.getMatches(),
+          ]);
+          if (lf.length || lm.length) {
+            await Promise.all([store.saveFriends(lf), store.saveMatches(lm)]);
+            if (!active) return;
+            setFriends(lf);
+            setMatches(lm);
+            setLoading(false);
+            return;
+          }
+        }
+
+        setFriends(f);
+        setMatches(m);
+        setLoading(false);
+      } catch {
+        // On any load error, fail safe to an empty (but usable) state.
+        if (active) {
+          setFriends([]);
+          setMatches([]);
+          setLoading(false);
+        }
+      }
     })();
     return () => {
       active = false;
     };
-  }, [store]);
+  }, [store, authenticated, status]);
 
   // Persist helpers keep state and storage in sync.
   const persistFriends = useCallback(
