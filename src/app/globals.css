@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Subtle scrollbar so the warm aesthetic stays clean */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #fecdd9 transparent;
+}
