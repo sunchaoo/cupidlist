@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Heart, Users, Sparkles, History, Trash2 } from "lucide-react";
 import { useFriends } from "@/context/FriendsContext";
+import { AccountMenu } from "./AccountMenu";
 
 const NAV = [
   { href: "/", label: "All Friends", Icon: Users },
@@ -121,7 +122,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <nav className="flex flex-col gap-1">
             <NavLinks orientation="sidebar" />
           </nav>
-          <div className="mt-auto flex flex-col gap-2 px-3">
+          <div className="mt-auto flex flex-col gap-3 px-3">
+            <AccountMenu />
             <ResetButton />
             <p className="text-[11px] leading-relaxed text-slate-400">
               MVP · data is saved locally in your browser.

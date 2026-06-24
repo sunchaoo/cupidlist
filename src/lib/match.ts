@@ -22,9 +22,15 @@ export function buildMatchMessage(friendA: Friend, friendB: Friend): string {
   );
 }
 
-/** Encode the message into a WhatsApp deep link (wa.me). */
-export function whatsappShareUrl(message: string): string {
-  return `https://wa.me/?text=${encodeURIComponent(message)}`;
+/**
+ * Encode the message into a WhatsApp deep link (wa.me). If a phone number is
+ * known (e.g. from a vCard import), target that person directly; otherwise open
+ * WhatsApp's share sheet so the user can pick a recipient.
+ */
+export function whatsappShareUrl(message: string, phone?: string): string {
+  const digits = phone?.replace(/\D/g, "");
+  const base = digits ? `https://wa.me/${digits}` : "https://wa.me/";
+  return `${base}?text=${encodeURIComponent(message)}`;
 }
 
 /** Open the recipient's Instagram DM thread (best-effort deep link). */
