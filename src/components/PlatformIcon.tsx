@@ -1,4 +1,4 @@
-import { Instagram, Facebook, MessageCircle, Linkedin, UserRound } from "lucide-react";
+import { Instagram, Facebook, MessageCircle, Linkedin, Apple, UserRound } from "lucide-react";
 import type { Platform } from "@/lib/types";
 
 const MAP: Record<
@@ -9,6 +9,7 @@ const MAP: Record<
   facebook: { Icon: Facebook, label: "Facebook", className: "text-blue-600" },
   whatsapp: { Icon: MessageCircle, label: "WhatsApp", className: "text-green-500" },
   linkedin: { Icon: Linkedin, label: "LinkedIn", className: "text-sky-700" },
+  apple: { Icon: Apple, label: "Apple / Phone", className: "text-slate-700" },
   manual: { Icon: UserRound, label: "Manual", className: "text-slate-400" },
 };
 

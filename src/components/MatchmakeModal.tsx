@@ -165,7 +165,7 @@ export function MatchmakeModal({
             </button>
             <div className="grid grid-cols-2 gap-2">
               <a
-                href={whatsappShareUrl(message)}
+                href={whatsappShareUrl(message, target.phone)}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-500 px-4 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"

@@ -8,7 +8,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { FriendCard } from "@/components/FriendCard";
 import { AddFriendModal } from "@/components/AddFriendModal";
 import { MatchmakeModal } from "@/components/MatchmakeModal";
-import { ImportConnectionsModal } from "@/components/ImportConnectionsModal";
+import { ImportContactsModal } from "@/components/ImportContactsModal";
 import { EmptyState } from "@/components/EmptyState";
 
 export default function AllFriendsPage() {
@@ -28,8 +28,8 @@ export default function AllFriendsPage() {
   function handleImported(added: number) {
     setImportNote(
       added > 0
-        ? `Imported ${added} connection${added === 1 ? "" : "s"} 🎉`
-        : "Those connections are already in your list."
+        ? `Imported ${added} contact${added === 1 ? "" : "s"} 🎉`
+        : "Those contacts are already in your list."
     );
     setTimeout(() => setImportNote(null), 3000);
   }
@@ -114,7 +114,7 @@ export default function AllFriendsPage() {
         onClose={() => setAddOpen(false)}
         onSubmit={addFriend}
       />
-      <ImportConnectionsModal
+      <ImportContactsModal
         open={importOpen}
         onClose={() => setImportOpen(false)}
         onImported={handleImported}

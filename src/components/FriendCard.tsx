@@ -59,6 +59,8 @@ export function FriendCard({
             >
               <Linkedin size={12} /> LinkedIn
             </a>
+          ) : friend.phone ? (
+            <span className="text-sm text-slate-500">{friend.phone}</span>
           ) : (
             <span className="text-sm text-slate-400">No handle</span>
           )}

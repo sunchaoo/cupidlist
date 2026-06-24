@@ -2,7 +2,13 @@
 // These are intentionally backend-agnostic so the same shapes can be served
 // from Local Storage today or a Supabase table tomorrow.
 
-export type Platform = "instagram" | "facebook" | "whatsapp" | "linkedin" | "manual";
+export type Platform =
+  | "instagram"
+  | "facebook"
+  | "whatsapp"
+  | "linkedin"
+  | "apple"
+  | "manual";
 
 export type Gender = "male" | "female" | "nonbinary" | "unspecified";
 
@@ -17,7 +23,10 @@ export interface Friend {
   instagramHandle?: string;
   /** Optional LinkedIn profile URL (populated by the Connections.csv import). */
   linkedinUrl?: string;
-  /** Optional headline/role, e.g. "Designer at Acme" (from LinkedIn import). */
+  /** Optional phone number (from a vCard / phone-contacts import). Enables
+   *  WhatsApp deep links to this person. */
+  phone?: string;
+  /** Optional headline/role, e.g. "Designer at Acme" (from imports). */
   headline?: string;
   isSingle: boolean;
   gender: Gender;
